@@ -1,15 +1,18 @@
 ###########################################
 # BASE IMAGE
 ###########################################
+# Dockerfile
+FROM golang:latest AS build
 
-FROM ubuntu AS build
-
-RUN apt-get update && apt-get install -y golang-go
-
-ENV GO111MODULE=off
+WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /app .
+RUN CGO_ENABLED=0 go build -o /app/app .
 
-ENTRYPOINT ["/app"]
+# Final stage
+FROM scratch
+
+COPY --from=build /app/app /app/app
+
+CMD ["/app/app"]
